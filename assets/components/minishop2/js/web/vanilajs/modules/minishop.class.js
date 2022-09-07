@@ -75,7 +75,6 @@ export default class MiniShop {
             });
         }
 
-
         document.addEventListener('submit', e => {
             e.preventDefault();
             const $form = e.target,

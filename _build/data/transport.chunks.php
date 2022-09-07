@@ -9,6 +9,7 @@ $tmp = array(
     'tpl.msProducts.row' => 'ms_products_row',
 
     'tpl.msCart' => 'ms_cart',
+    'tpl.msCartNew' => 'ms_cart_new',
     'tpl.msMiniCart' => 'ms_minicart',
     'tpl.msOrder' => 'ms_order',
     'tpl.msGetOrder' => 'ms_get_order',

@@ -1,7 +1,7 @@
 {
   "msNotify": {},
   "msIziToast": {
-    "jsPath": "assets/components/minishop2/js/web/lib/izitoast/iziToast.min.js",
+    "jsPath": "assets/components/minishop2/js/web/vanilajs/lib/izitoast/iziToast.min.js",
     "cssPath": "assets/components/minishop2/css/web/lib/izitoast/iziToast.min.css",
     "handlerClassName": "iziToast",
     "handlerOptions": {

@@ -54,6 +54,7 @@ div.jGrowl > .ui-state-highlight {
 .input-visually-hidden{
     position: absolute !important;
     opacity: 0;
+    visibility: hidden;
     z-index: -10000 !important;
 }
 .input-number-wrap{
