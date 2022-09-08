@@ -9,15 +9,14 @@ const PKG_RELEASE = 'alpha';
 const PKG_AUTO_INSTALL = true;
 
 // Define paths
-/*if (isset($_SERVER['MODX_BASE_PATH'])) {
+if (isset($_SERVER['MODX_BASE_PATH'])) {
     define('MODX_BASE_PATH', $_SERVER['MODX_BASE_PATH']);
 } elseif (file_exists(dirname(__FILE__, 3) . '/core')) {
     define('MODX_BASE_PATH', dirname(__FILE__, 3) . '/');
 } else {
     define('MODX_BASE_PATH', dirname(__FILE__, 4) . '/');
-}*/
+}
 
-const MODX_BASE_PATH = '/home/a/a99963am/portfolio.art-sites.ru/public_html/';
 const MODX_CORE_PATH = MODX_BASE_PATH . 'core/';
 const MODX_MANAGER_PATH = MODX_BASE_PATH . 'manager/';
 const MODX_CONNECTORS_PATH = MODX_BASE_PATH . 'connectors/';
