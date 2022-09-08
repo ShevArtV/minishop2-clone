@@ -52,11 +52,11 @@
                         <td class="ms-count">
                             <form method="post" class="ms2_form" role="form">
                                 <input type="hidden" name="key" value="{$product.key}"/>
-                                <button type="submit" class="input-visually-hidden" name="ms2_action" value="cart/change"/></button>
-                                <div class="form-group input-number-wrap">
-                                    <button class="input-number-minus input-number-btn btn btn-sm btn-secondary" type="button">&#8722;</button>
-                                    <input class="input-number-emulator" value="{$product.count}" name="count" type="text">
-                                    <button class="input-number-plus input-number-btn btn btn-sm btn-secondary" type="button">&#43;</button>
+                                <button type="submit" class="ms-hidden" name="ms2_action" value="cart/change"/></button>
+                                <div class="ms-input-number-wrap">
+                                    <button class="ms-input-number-btn btn btn-sm btn-secondary" type="button">&#8722;</button>
+                                    <input class="ms-input-number-emulator" value="{$product.count}" name="count" type="text">
+                                    <button class="ms-input-number-btn btn btn-sm btn-secondary" type="button">&#43;</button>
                                 </div>
                             </form>
                         </td>

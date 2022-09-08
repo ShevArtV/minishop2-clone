@@ -51,28 +51,28 @@ div.jGrowl > .ui-state-highlight {
 }
 
 /* Input Number */
-.input-visually-hidden{
+.ms-hidden{
     position: absolute !important;
     opacity: 0;
     visibility: hidden;
     z-index: -10000 !important;
 }
-.input-number-wrap{
+.ms-input-number-wrap{
     display: flex;
     font-size: 16px;
 }
-.input-number-emulator{
+.ms-input-number-emulator{
     width: 3em;
     text-align: center;
     border: none;
     background-color: transparent;
 }
-.input-number-emulator:focus, .input-number-emulator:active{
+.ms-input-number-emulator:focus, .ms-input-number-emulator:active{
     outline: none;
     box-shadow: none;
     border: none;
 }
-.input-number-btn{
+.ms-input-number-btn{
     display: flex;
     align-items: center;
     justify-content: center;
