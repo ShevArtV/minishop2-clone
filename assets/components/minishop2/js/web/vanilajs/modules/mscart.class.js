@@ -43,30 +43,30 @@ export default class msCart {
 
     add(formData) {
         const callbacks = this.callbacks;
-        callbacks.add.response.success = function (response) {
+        callbacks.add.response.success = (response) => {
             this.status(response.data);
-        }.bind(this);
+        };
         this.minishop.send(formData, this.callbacks.add, this.minishop.Callbacks.Cart.add);
     }
 
     remove(formData) {
         const callbacks = this.callbacks;
-        callbacks.remove.response.success = function (response) {
+        callbacks.remove.response.success = (response) => {
             this.remove_position(formData.get('key'));
             this.status(response.data);
-        }.bind(this);
+        };
         this.minishop.send(formData, this.callbacks.remove, this.minishop.Callbacks.Cart.remove);
     }
 
     change(formData) {
         const callbacks = this.callbacks;
         this.formData = this.minishop.formData;
-        callbacks.change.response.success = function (response) {
+        callbacks.change.response.success = (response) => {
             if (typeof (response.data.key) == 'undefined') {
                 this.remove_position(this.formData.get('key'));
             }
             this.status(response.data);
-        }.bind(this);
+        };
         this.minishop.send(formData, this.callbacks.change, this.minishop.Callbacks.Cart.change);
     }
 
@@ -96,7 +96,7 @@ export default class msCart {
                     productCost.innerText = this.minishop.formatPrice(status['cost']);
                 }
             }
-            if (document.querySelector(this.minishop.Order.orderCost)) {
+            if (this.minishop.Order.orderCost) {
                 this.minishop.Order.getcost();
             }
         }
@@ -104,9 +104,9 @@ export default class msCart {
 
     clean(formData) {
         const callbacks = this.callbacks;
-        callbacks.clean.response.success = function (response) {
+        callbacks.clean.response.success = (response) => {
             this.status(response.data);
-        }.bind(this);
+        };
 
         this.minishop.send(formData, this.callbacks.clean, this.minishop.Callbacks.Cart.clean);
     }

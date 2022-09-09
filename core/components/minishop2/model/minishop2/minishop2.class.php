@@ -120,15 +120,14 @@ class miniShop2
                     $this->modx->regClientScript('<script type="module" src="'.$js.'"></script>',1);
                 }
 
-                $notifySettingsPath = str_replace('[[+jsUrl]]', $this->config['jsUrl'],$this->modx->getOption('ms2_frontend_notify_js_settings', null, ''));
                 $js_setting = array(
-                    'cartClassPath' => $this->modx->getOption('ms2_cart_js_class_path', null, ''),
+                    'cartClassPath' => str_replace('[[+jsUrl]]', $this->config['jsUrl'],$this->modx->getOption('ms2_cart_js_class_path', null, '')),
                     'cartClassName' => $this->modx->getOption('ms2_cart_js_class_name', null, ''),
-                    'orderClassPath' => $this->modx->getOption('ms2_order_js_class_path', null, ''),
+                    'orderClassPath' => str_replace('[[+jsUrl]]', $this->config['jsUrl'],$this->modx->getOption('ms2_order_js_class_path', null, '')),
                     'orderClassName' => $this->modx->getOption('ms2_order_js_class_name', null, ''),
-                    'notifyClassPath' => $this->modx->getOption('ms2_notify_js_class_path', null, ''),
+                    'notifyClassPath' => str_replace('[[+jsUrl]]', $this->config['jsUrl'],$this->modx->getOption('ms2_notify_js_class_path', null, '')),
                     'notifyClassName' => $this->modx->getOption('ms2_notify_js_class_name', null, ''),
-                    'notifySettingsPath' => $notifySettingsPath,
+                    'notifySettingsPath' => str_replace('[[+jsUrl]]', $this->config['jsUrl'],$this->modx->getOption('ms2_frontend_notify_js_settings', null, '')),
 
 
                     'cssUrl' => $this->config['cssUrl'] . 'web/',

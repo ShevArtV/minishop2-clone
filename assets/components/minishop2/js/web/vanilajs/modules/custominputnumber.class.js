@@ -2,13 +2,12 @@ export default class CustomInputNumber {
     constructor(element, config) {
 
         if (!element) {
-            console.error('Element is undefined.');
-            return false;
+            throw new Error('Element is undefined.');
         }
         this.defaults = {
-            wrapperSelector: '.input-number-wrap',
-            minusSelector: '.input-number-minus',
-            plusSelector: '.input-number-plus',
+            wrapperSelector: '.ms-input-number-wrap',
+            minusSelector: '.ms-input-number-minus',
+            plusSelector: '.ms-input-number-plus',
             min: parseFloat(element.getAttribute('min')) || 0,
             max: parseFloat(element.getAttribute('max')) || false,
             step: parseFloat(element.getAttribute('step')) || 1,
@@ -33,59 +32,50 @@ export default class CustomInputNumber {
     }
 
     addListeners() {
-        this.plus.addEventListener('click', () => this.numberUp());
-        this.minus.addEventListener('click', () => this.numberDown());
-        this.field.addEventListener('change', () => this.numberInput());
+        this.plus.addEventListener('click', this.numberUp.bind(this));
+        this.minus.addEventListener('click', this.numberDown.bind(this));
+        this.field.addEventListener('change', this.numberInput.bind(this));
     }
 
     numberUp() {
-        let config = this.config,
-            field = this.field,
-            value = parseFloat(this.field.value);
+        let value = this.floatValue;
 
-        if (config.max >= value + config.step || !config.max) {
-            field.value = value + config.step;
-            this.triggerEvent(config);
+        if (this.config.max >= value + this.config.step || !this.config.max) {
+            this.field.value = value + this.config.step;
+            this.field.dispatchEvent(this.config.event);
         }
     }
 
     numberDown() {
-        let config = this.config,
-            field = this.field,
-            value = parseFloat(this.field.value),
-            negative = config.min < 0 ? true : config.negative;
+        let value = this.floatValue,
+            negative = this.config.min < 0 ? true : this.config.negative;
 
-        if (config.min <= value - config.step || !config.min) {
-            if (negative || value - config.step >= 0) {
-                field.value = value - config.step;
-            } else if (value - config.step < 0) {
-                field.value = config.min ? config.min : 0;
+        if (this.config.min <= value - this.config.step || !this.config.min) {
+            if (negative || value - this.config.step >= 0) {
+                this.field.value = value - this.config.step;
+            } else if (value - this.config.step < 0) {
+                this.field.value = this.config.min || 0;
             }
-            this.triggerEvent(config);
+            this.field.dispatchEvent(this.config.event);
         }
     }
 
     numberInput() {
-        let config = this.config,
-            field = this.field,
-            inputValue = parseFloat(this.field.value) || config.min;
+        let inputValue = this.floatValue || this.config.min;
 
-        if (inputValue % config.step !== 0) {
-            inputValue = Math.round(inputValue / config.step) * config.step;
+        if (inputValue % this.config.step !== 0) {
+            inputValue = Math.round(inputValue / this.config.step) * this.config.step;
         }
-        if (config.min && inputValue < config.min) {
-            inputValue = config.min;
+        if (this.config.min && inputValue < this.config.min) {
+            inputValue = this.config.min;
         }
-        if (config.max && inputValue > config.max) {
-            inputValue = config.max;
+        if (this.config.max && inputValue > this.config.max) {
+            inputValue = this.config.max;
         }
-        field.value = inputValue;
+        this.field.value = inputValue;
     }
 
-    triggerEvent(config) {
-        this.field.dispatchEvent(config.event);
-        if (window.jQuery !== 'undefined') {
-            $(this.field).trigger('change');
-        }
+    get floatValue(){
+        return parseFloat(this.field.value);
     }
 }

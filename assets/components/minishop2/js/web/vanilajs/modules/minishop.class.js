@@ -25,6 +25,12 @@ export default class MiniShop {
         this.formData = null;
         this.Message = null;
         this.timeout = 300;
+        if (!this.miniShop2Config.actionUrl) {
+            this.miniShop2Config.actionUrl = document.location.href;
+        }
+        if (!this.miniShop2Config.formMethod) {
+            this.miniShop2Config.formMethod = 'post';
+        }
         this.initialize();
     }
 
@@ -44,6 +50,7 @@ export default class MiniShop {
     }
 
     async initialize() {
+
         this.setHandler(
             'Cart',
             'cartClassPath',
@@ -61,8 +68,10 @@ export default class MiniShop {
             'Произошла ошибка при загрузке модуля отправки заказа');
 
         if (this.miniShop2Config.notifySettingsPath) {
-            this.sendAjax(this.miniShop2Config.notifySettingsPath, new FormData, (response) => {
-                if (response) {
+            const response = await this.sendResponse({url: this.miniShop2Config.notifySettingsPath});
+            if (response.ok) {
+                const messageSettings = await response.json();
+                if(messageSettings){
                     this.setHandler(
                         'Message',
                         'notifyClassPath',
@@ -70,9 +79,9 @@ export default class MiniShop {
                         './msnotify.class.js',
                         'msNotify',
                         'Произошла ошибка при загрузке модуля уведомлений',
-                        response);
+                        messageSettings);
                 }
-            });
+            }
         }
 
         document.addEventListener('submit', e => {
@@ -132,21 +141,21 @@ export default class MiniShop {
     }
 
     addCallback(path, name, func) {
-        if (typeof func != 'function') {
+        if (typeof func !== 'function') {
             return false;
         }
         path = path.split('.');
         let obj = this.Callbacks;
         for (let i = 0; i < path.length; i++) {
-            if (obj[path[i]] == undefined) {
+            if (obj[path[i]] === undefined) {
                 return false;
             }
             obj = obj[path[i]];
         }
-        if (typeof obj != 'object') {
+        if (typeof obj !== 'object') {
             obj = [obj];
         }
-        if (name != undefined) {
+        if (name !== undefined) {
             obj[name] = func;
         } else {
             obj.push(func);
@@ -158,12 +167,12 @@ export default class MiniShop {
         path = path.split('.');
         let obj = this.Callbacks;
         for (let i = 0; i < path.length; i++) {
-            if (obj[path[i]] == undefined) {
+            if (obj[path[i]] === undefined) {
                 return false;
             }
             obj = obj[path[i]];
         }
-        if (obj[name] != undefined) {
+        if (obj[name] !== undefined) {
             delete obj[name];
             return true;
         }
@@ -171,9 +180,9 @@ export default class MiniShop {
     }
 
     runCallback(callback, bind) {
-        if (typeof callback == 'function') {
+        if (typeof callback === 'function') {
             return callback.apply(bind, Array.prototype.slice.call(arguments, 2));
-        } else if (typeof callback == 'object') {
+        } else if (typeof callback === 'object') {
             for (let i in callback) {
                 if (callback.hasOwnProperty(i)) {
                     const response = callback[i].apply(bind, Array.prototype.slice.call(arguments, 2));
@@ -186,43 +195,36 @@ export default class MiniShop {
         return true;
     }
 
-    async send(data, callbacks, userCallbacks, headers) {
-        headers = headers ? headers : {"X-Requested-With": "XMLHttpRequest"};
-        const self = this;
+    sendResponse(params) {
+        const body = params.body || new FormData(),
+            headers = params.headers || {"X-Requested-With": "XMLHttpRequest"},
+            url = params.url || this.miniShop2Config.actionUrl,
+            method = params.method || this.miniShop2Config.formMethod;
 
-        // set context
+        const options = {method, headers, body};
+
+        return fetch(url, options);
+    }
+
+    async send(data, callbacks, userCallbacks, headers) {
+        // callback before
+        if (this.runCallback(callbacks.before) === false || this.runCallback(userCallbacks.before) === false) {
+            return;
+        }
+
         if (Array.isArray(data)) {
             data.push({
                 name: 'ctx',
                 value: this.miniShop2Config.ctx
             });
-        } else if (typeof data == 'object') {
+        } else if (data instanceof FormData) {
             data.append('ctx', this.miniShop2Config.ctx);
         } else if (typeof data == 'string') {
             data += '&ctx=' + this.miniShop2Config.ctx;
         }
 
-        // set action url
-        const url = (this.miniShop2Config.actionUrl)
-            ? this.miniShop2Config.actionUrl
-            : document.location.href;
-        // set request method
-        const method = (this.miniShop2Config.formMethod)
-            ? this.miniShop2Config.formMethod
-            : 'post';
-
-        const options = {
-            method: method,
-            headers: headers,
-            body: data
-        };
-
-        // callback before
-        if (this.runCallback(callbacks.before) === false || this.runCallback(userCallbacks.before) === false) {
-            return;
-        }
-        // send
-        const xhr = await fetch(url, options);
+        const xhr = await this.sendResponse({body : data, headers});
+        const self = this;
         if (xhr.ok) {
             const response = await xhr.json();
             if (response.success) {
@@ -246,9 +248,9 @@ export default class MiniShop {
         this.runCallback(userCallbacks.ajax.always, self, xhr);
     }
 
-    empty(val) {
+    /*empty(val) {
         return (typeof (val) == 'undefined' || val == 0 || val === null || val === false || (typeof (val) == 'string' && val.replace(/\s+/g, '') == '') || (typeof (val) == 'object' && val.length == 0));
-    }
+    }*/
 
     formatPrice(price) {
         var pf = this.miniShop2Config.price_format;
@@ -308,36 +310,5 @@ export default class MiniShop {
             : '');
 
         return km + kw + kd;
-    }
-
-    querySelectorsArray(selectors, ctx) {
-        if (!ctx) {
-            ctx = document;
-        }
-        if (Array.isArray(selectors)) {
-            let result = [];
-            for (let i = 0; i < selectors.length; i++) {
-                let tmp = Array.prototype.slice.call(ctx.querySelectorAll(selectors[i]));
-                result = result.concat(tmp);
-            }
-            return result;
-        } else {
-            return Array.prototype.slice.call(ctx.querySelectorAll(selectors));
-        }
-    }
-
-    sendAjax(url, params, callback, method) {
-        method = method || 'GET';
-        const request = new XMLHttpRequest();
-        url = url || document.location.href;
-        request.open(method, url, true);
-        request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        request.responseType = 'json';
-        request.addEventListener('readystatechange', function () {
-            if (request.readyState === 4 && request.status === 200) {
-                callback(request.response);
-            }
-        });
-        request.send(params);
     }
 }

@@ -26,12 +26,14 @@ export default class msNotify {
         }
     }
 
-    success(message){
-        message ? this.show('success', message) : '';
-    }
-    error(message) {
-        message ? this.show('error', message) : '';
+    success(message) {
+        this.show('success', message);
     }
 
-    close(){}
+    error(message) {
+        this.show('error', message);
+    }
+
+    close() {
+    }
 }

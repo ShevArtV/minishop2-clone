@@ -295,7 +295,7 @@ $tmp = array(
         'area' => 'ms2_frontend',
     ),
     'ms2_cart_js_class_path' => array(
-        'value' => './mscart.class.js',
+        'value' => '[[+jsUrl]]web/vanilajs/modules/mscart.class.js',
         'xtype' => 'textfield',
         'area' => 'ms2_frontend',
     ),
@@ -305,7 +305,7 @@ $tmp = array(
         'area' => 'ms2_frontend',
     ),
     'ms2_order_js_class_path' => array(
-        'value' => './msorder.class.js',
+        'value' => '[[+jsUrl]]web/vanilajs/modules/msorder.class.js',
         'xtype' => 'textfield',
         'area' => 'ms2_frontend',
     ),
@@ -315,7 +315,7 @@ $tmp = array(
         'area' => 'ms2_frontend',
     ),
     'ms2_notify_js_class_path' => array(
-        'value' => './msizitoast.class.js',
+        'value' => '[[+jsUrl]]web/vanilajs/modules/msizitoast.class.js',
         'xtype' => 'textfield',
         'area' => 'ms2_frontend',
     ),

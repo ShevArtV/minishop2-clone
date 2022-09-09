@@ -9,27 +9,24 @@ export default class msOrder {
             submit: this.config.callbacksObjectTemplate(),
             getrequired: this.config.callbacksObjectTemplate()
         };
-        this.order = '#msOrder';
-        this.deliveries = '#deliveries';
-        this.payments = '#payments';
+        this.order = document.querySelector('#msOrder');
         this.deliveryInput = 'input[name="delivery"]';
         this.inputParent = '.input-parent';
         this.paymentInput = 'input[name="payment"]';
         this.paymentInputUniquePrefix = '#payment_';
         this.deliveryInputUniquePrefix = '#delivery_';
-        this.orderCost = '#ms2_order_cost';
-        this.cartCost = '#ms2_order_cart_cost';
-        this.deliveryCost = '#ms2_order_delivery_cost';
+        this.orderCost = document.querySelector('#ms2_order_cost');
+        this.cartCost = document.querySelector('#ms2_order_cart_cost');
+        this.deliveryCost = document.querySelector('#ms2_order_delivery_cost');
         this.changeEvent = new Event('change', {bubbles: true, cancelable: true,});
         this.clickEvent = new Event('click', {bubbles: true, cancelable: true,});
         this.initialize();
     }
 
     initialize() {
-        if (document.querySelector(this.order)) {
-            const cleanBtn = document.querySelector(this.order + ' [name="' + this.minishop.actionName + '"][value="order/clean"]'),
-                inputs = document.querySelectorAll(this.order + ' input'),
-                textareas = document.querySelectorAll(this.order + ' textarea'),
+        if (this.order) {
+            const cleanBtn = this.order.querySelector(`[name="${this.minishop.actionName}"][value="order/clean"]`),
+                inputs = this.order.querySelectorAll('input, textarea'),
                 self = this;
             if (cleanBtn) {
                 cleanBtn.addEventListener('click', (e) => {
@@ -37,23 +34,18 @@ export default class msOrder {
                     self.clean();
                 });
             }
-            if (inputs && textareas) {
-                const inputs_arr = Array.prototype.slice.call(inputs) || [],
-                    textareas_arr = Array.prototype.slice.call(textareas) || [],
-                    fields = inputs_arr.concat(textareas_arr);
-                if (fields) {
-                    fields.forEach(el => {
-                        el.addEventListener('change', (e) => {
-                            e.preventDefault();
-                            if (el.value) {
-                                self.add(el.name, el.value);
-                            }
-                        });
+            if (inputs) {
+                inputs.forEach(el => {
+                    el.addEventListener('change', (e) => {
+                        e.preventDefault();
+                        if (el.value) {
+                            self.add(el.name, el.value);
+                        }
                     });
-                }
+                });
             }
 
-            const $deliveryInputChecked = document.querySelector(this.order + ' ' + this.deliveryInput + ':checked');
+            const $deliveryInputChecked = this.order.querySelector(this.deliveryInput + ':checked');
             if ($deliveryInputChecked) {
                 $deliveryInputChecked.dispatchEvent(this.changeEvent);
             }
@@ -61,16 +53,17 @@ export default class msOrder {
     }
 
     hide(node) {
-        node.style.display = 'none';
+        node.classList.add('ms-hidden');
+        node.checked = false;
     }
 
     show(node) {
-        node.style.display = 'block';
+        node.classList.remove('ms-hidden');
     }
 
     updatePayments(payments) {
         payments = payments.replace(/[\[\]]/g, '').split(',');
-        let $paymentInputs = document.querySelectorAll(this.order + ' ' + this.paymentInput);
+        let $paymentInputs = this.order.querySelectorAll(this.paymentInput);
         if ($paymentInputs) {
             $paymentInputs = Array.prototype.slice.call($paymentInputs);
             $paymentInputs.forEach(el => {
@@ -78,7 +71,7 @@ export default class msOrder {
                 this.hide(el.closest(this.inputParent));
             });
 
-            if (payments.length > 0) {
+            if (payments.length) {
                 for (let i in payments) {
                     let selector = this.paymentInputUniquePrefix + payments[i],
                         input = $paymentInputs.find(item => '#' + item.id === selector);
@@ -100,46 +93,39 @@ export default class msOrder {
         const callbacks = this.callbacks,
             old_value = value;
 
-        callbacks.add.response.success = function (response) {
-            (function (key, value, old_value) {
-                let $field = document.querySelector(this.order + ' [name="' + key + '"]');
-                switch (key) {
-                    case 'delivery':
-                        $field = document.querySelector(this.deliveryInputUniquePrefix + response.data[key]);
-                        if (response.data[key] != old_value) {
-                            $field.dispatchEvent(this.clickEvent);
-                        } else {
-                            this.getrequired(value);
-                            this.updatePayments($field.dataset.payments);
-                            this.getcost();
-                        }
-                        break;
-                    case 'payment':
-                        $field = document.querySelector(this.paymentInputUniquePrefix + response.data[key]);
-                        if (response.data[key] != old_value) {
-                            $field.dispatchEvent(this.clickEvent);
-                        } else {
-                            this.getcost();
-                        }
-                        break;
-                }
-                $field.value = response.data[key];
-                $field.classList.remove('error');
-                $field.closest(this.inputParent).classList.remove('error');
-
-            }.bind(this))(key, value, old_value);
-        }.bind(this);
-
-        callbacks.add.response.error = function () {
-            (function (key) {
-                let $field = document.querySelector(this.order + ' [name="' + key + '"]');
-                if ($field.getAttribute('type') === 'checkbox' || $field.getAttribute('type') === 'radio') {
-                    $field.closest(this.inputParent).classList.add('error');
+        callbacks.add.response.success = (response) => {
+            let field = this.order.querySelector(`[name="${key}"]`);
+            if(response.data.delivery){
+                field = document.querySelector(this.deliveryInputUniquePrefix + response.data[key]);
+                if (response.data[key] !== old_value) {
+                    field.dispatchEvent(this.clickEvent);
                 } else {
-                    $field.classList.add('error');
+                    this.getrequired(value);
+                    this.updatePayments(field.dataset.payments);
+                    this.getcost();
                 }
-            }.bind(this))(key);
-        }.bind(this);
+            }
+            if(response.data.payment){
+                field = document.querySelector(this.paymentInputUniquePrefix + response.data[key]);
+                if (response.data[key] !== old_value) {
+                    field.dispatchEvent(this.clickEvent);
+                } else {
+                    this.getcost();
+                }
+            }
+            field.value = response.data[key];
+            field.classList.remove('error');
+            field.closest(this.inputParent).classList.remove('error');
+        }
+
+        callbacks.add.response.error = () => {
+            let field = this.order.querySelector(`[name="${key}"]`);
+            if (field.getAttribute('type') === 'checkbox' || field.getAttribute('type') === 'radio') {
+                field.closest(this.inputParent).classList.add('error');
+            } else {
+                field.classList.add('error');
+            }
+        };
 
         const formData = new FormData();
         formData.append('key', key);
@@ -150,20 +136,18 @@ export default class msOrder {
 
     getcost() {
         const callbacks = this.callbacks;
-        callbacks.getcost.response.success = function (response) {
-            const orderCost =  document.querySelector(this.orderCost),
-                cartCost =  document.querySelector(this.cartCost),
-                deliveryCost =  document.querySelector(this.deliveryCost);
-            if(orderCost){
-                orderCost.innerText = this.minishop.formatPrice(response.data['cost']);
+        callbacks.getcost.response.success = (response) => {
+            if(this.orderCost){
+                this.orderCost.innerText = this.minishop.formatPrice(response.data['cost']);
             }
-            if(cartCost){
-                cartCost.innerText = this.minishop.formatPrice(response.data['cart_cost']);
+            if(this.cartCost){
+                this.cartCost.innerText = this.minishop.formatPrice(response.data['cart_cost']);
             }
-            if(deliveryCost){
-                deliveryCost.innerText = this.minishop.formatPrice(response.data['delivery_cost']);
+            if(this.deliveryCost){
+                this.deliveryCost.innerText = this.minishop.formatPrice(response.data['delivery_cost']);
             }
-        }.bind(this);
+        };
+
         const formData = new FormData();
         formData.append(this.minishop.actionName, 'order/getcost');
         this.minishop.send(formData, this.callbacks.getcost, this.minishop.Callbacks.Order.getcost);
@@ -171,9 +155,7 @@ export default class msOrder {
 
     clean() {
         const callbacks = this.callbacks;
-        callbacks.clean.response.success = function () {
-            location.reload();
-        };
+        callbacks.clean.response.success = () => location.reload();
 
         const formData = new FormData();
         formData.append(this.minishop.actionName, 'order/clean');
@@ -183,11 +165,11 @@ export default class msOrder {
     submit(formData) {
         this.minishop.Message.close();
         const callbacks = this.callbacks;
-        callbacks.submit.before = function () {
-            const elements = this.minishop.querySelectorsArray([this.order + ' button', this.order + ' a']);
+        callbacks.submit.before = () => {
+            const elements = this.order.querySelectorAll('button, a');
             elements.forEach(el => el.disabled = false);
-        }.bind(this);
-        callbacks.submit.response.success = function (response) {
+        };
+        callbacks.submit.response.success = (response) => {
             if (response.data['redirect']) {
                 document.location.href = response.data['redirect'];
             } else if (response.data['msorder']) {
@@ -197,14 +179,14 @@ export default class msOrder {
             } else {
                 location.reload();
             }
-        }.bind(this);
-        callbacks.submit.response.error = function (response) {
-            setTimeout((function () {
-                const elements = this.minishop.querySelectorsArray([this.order + ' button', this.order + ' a']);
+        };
+        callbacks.submit.response.error = (response) => {
+            setTimeout(() => {
+                const elements = this.order.querySelectorAll('button, a');
                 elements.forEach(el => el.disabled = false);
-            }.bind(this)), 3 * this.minishop.timeout);
+            }, 3 * this.minishop.timeout);
 
-            const fields = document.querySelectorAll(this.order + ' [name]');
+            const fields = this.order.querySelectorAll( '[name]');
             if (fields) {
                 fields.forEach(el => {
                     el.classList.remove('error');
@@ -217,22 +199,22 @@ export default class msOrder {
             for (let i in response.data) {
                 if (response.data.hasOwnProperty(i)) {
                     const key = response.data[i],
-                        $field = document.querySelector(this.order + ' [name="' + key + '"]');
-                    if ($field.type === 'checkbox' || $field.type === 'radio') {
-                        $field.closest(this.inputParent).classList.add('error');
+                        field = this.order.querySelector(`[name="${key}"]`);
+                    if (field.type === 'checkbox' || field.type === 'radio') {
+                        field.closest(this.inputParent).classList.add('error');
                     } else {
-                        $field.classList.add('error');
+                        field.classList.add('error');
                     }
                 }
             }
-        }.bind(this);
+        };
         return this.minishop.send(formData, this.callbacks.submit, this.minishop.Callbacks.Order.submit);
     }
 
     getrequired(value) {
         const callbacks = this.callbacks;
-        callbacks.getrequired.response.success = function (response) {
-            const fields = document.querySelectorAll(this.order + ' [name]'),
+        callbacks.getrequired.response.success = (response) => {
+            const fields = this.order.querySelectorAll( '[name]'),
                 requires = response.data['requires'];
             if (fields) {
                 fields.forEach(el => {
@@ -243,8 +225,8 @@ export default class msOrder {
                 });
             }
 
-            for (var i = 0, length = requires.length; i < length; i++) {
-                let field = document.querySelector(this.order + ' [name=' + requires[i] + ']');
+            for (let i = 0, length = requires.length; i < length; i++) {
+                let field = this.order.querySelector(`[name="${requires[i]}"]`);
                 if (field) {
                     field.classList.add('required');
                     if (field.closest(this.inputParent)) {
@@ -252,9 +234,9 @@ export default class msOrder {
                     }
                 }
             }
-        }.bind(this);
-        callbacks.getrequired.response.error = function () {
-            const fields = document.querySelectorAll(this.order + ' [name]');
+        };
+        callbacks.getrequired.response.error = () => {
+            const fields = this.order.querySelectorAll('[name]');
             if (fields) {
                 fields.forEach(el => {
                     el.classList.remove('required');
@@ -263,7 +245,7 @@ export default class msOrder {
                     }
                 });
             }
-        }.bind(this);
+        };
 
         const formData = new FormData();
         formData.append('id', value);
