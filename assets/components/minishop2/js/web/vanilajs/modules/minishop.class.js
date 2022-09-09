@@ -248,10 +248,6 @@ export default class MiniShop {
         this.runCallback(userCallbacks.ajax.always, self, xhr);
     }
 
-    /*empty(val) {
-        return (typeof (val) == 'undefined' || val == 0 || val === null || val === false || (typeof (val) == 'string' && val.replace(/\s+/g, '') == '') || (typeof (val) == 'object' && val.length == 0));
-    }*/
-
     formatPrice(price) {
         var pf = this.miniShop2Config.price_format;
         price = this.number_format(price, pf[0], pf[1], pf[2]);
